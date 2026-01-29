@@ -20,6 +20,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install NSIS (if needed)
         shell: pwsh
         run: |
@@ -117,11 +126,46 @@ jobs:
           $installer = Get-ChildItem windows_packaging/QuickBib-Installer-*.exe | Select-Object -First 1
           Write-Host "Testing installer: $($installer.FullName)"
 
-          & $installer.FullName /S /CURRENTUSER
+          Write-Host "Running silent install with /S /CURRENTUSER flags..."
+          # Capture output to see what the installer is doing
+          & $installer.FullName /S /CURRENTUSER /D=$env:TEMP\QuickBib-Test
+          $exitCode = $LASTEXITCODE
+          Write-Host "Installer exit code: $exitCode"
 
+          # Try to find install log
+          Write-Host "Looking for installer log files..."
+          Get-ChildItem "$env:TEMP" -Filter "*QuickBib*" -Recurse 2>$null | Select-Object -First 10 | ForEach-Object { Write-Host $_.FullName }
+
+          Write-Host "Waiting for installation to complete..."
+          Start-Sleep -Seconds 3
+
+          Write-Host "Checking LocalAppData: $env:LOCALAPPDATA"
           $exePath = "$env:LOCALAPPDATA\Programs\QuickBib\QuickBib.exe"
+          Write-Host "Looking for: $exePath"
+          
+          if (Test-Path "$env:LOCALAPPDATA\Programs\QuickBib") {
+            Write-Host "Installation directory exists. Contents:"
+            Get-ChildItem "$env:LOCALAPPDATA\Programs\QuickBib" -Recurse | ForEach-Object { Write-Host $_.FullName }
+          } else {
+            Write-Host "Installation directory does not exist"
+          }
+
+          # Also check the test directory
+          if (Test-Path "$env:TEMP\QuickBib-Test") {
+            Write-Host "Test installation directory exists. Contents:"
+            Get-ChildItem "$env:TEMP\QuickBib-Test" -Recurse | ForEach-Object { Write-Host $_.FullName }
+          }
+          
           if (!(Test-Path $exePath)) {
-            Write-Error "Silent install failed: QuickBib.exe not found"
+            Write-Error "Silent install failed: QuickBib.exe not found at $exePath"
+            
+            # Check if it installed to Program Files instead
+            $altPath = "$env:ProgramFiles\QuickBib\QuickBib.exe"
+            if (Test-Path $altPath) {
+              Write-Host "Found installation at: $altPath"
+              exit 1
+            }
+            
             exit 1
           }
 
@@ -136,7 +180,7 @@ jobs:
       - name: Upload portable ZIP artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QuickBib-portable
+          name: QuickBib-windows-portable
           path: QuickBib-Windows-portable-*.zip
 
       - name: Upload installer to GitHub Release (only for releases)
