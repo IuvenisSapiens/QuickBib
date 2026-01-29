@@ -81,7 +81,9 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}"
-          Compress-Archive dist\QuickBib "QuickBib-Windows-portable-$version.zip"
+          Push-Location dist\QuickBib
+          Compress-Archive -Path * -DestinationPath "../../QuickBib-Windows-portable-$version.zip"
+          Pop-Location
 
       - name: Create installer with NSIS
         # Run makensis from the repository root; try common absolute locations if it's not on PATH
