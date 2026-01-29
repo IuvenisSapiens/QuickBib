@@ -68,6 +68,12 @@ jobs:
             Write-Host "dist directory not found"
           }
 
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          Compress-Archive dist\QuickBib "QuickBib-Windows-portable-$version.zip"
+
       - name: Create installer with NSIS
         # Run makensis from the repository root; try common absolute locations if it's not on PATH
         shell: pwsh
@@ -105,16 +111,41 @@ jobs:
           Write-Host "Using makensis at: $found"
           & $found "windows_packaging\quickbib.nsi"
 
+      - name: Test silent user install
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem windows_packaging/QuickBib-Installer-*.exe | Select-Object -First 1
+          Write-Host "Testing installer: $($installer.FullName)"
+
+          & $installer.FullName /S /CURRENTUSER
+
+          $exePath = "$env:LOCALAPPDATA\Programs\QuickBib\QuickBib.exe"
+          if (!(Test-Path $exePath)) {
+            Write-Error "Silent install failed: QuickBib.exe not found"
+            exit 1
+          }
+
+          Write-Host "Silent install OK"
+
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: QuickBib-windows-installer
           path: windows_packaging/QuickBib-Installer-*.exe
 
+      - name: Upload portable ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickBib-portable
+          path: QuickBib-Windows-portable-*.zip
+
       - name: Upload installer to GitHub Release (only for releases)
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: windows_packaging/QuickBib-Installer-*.exe
+          files: |
+            windows_packaging/QuickBib-Installer-*.exe
+            QuickBib-Windows-portable-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

@@ -1,5 +1,7 @@
-; NSIS script to package the PyInstaller 'dist/QuickBib' output into an installer.
-; This script assumes the build step produces a folder 'dist\QuickBib' with QuickBib.exe
+; =========================
+; QuickBib NSIS Installer
+; GUI + Silent (winget-safe)
+; =========================
 
 !define APP_NAME "QuickBib"
 !define COMPANY "Archisman Panigrahi"
@@ -7,37 +9,74 @@
 
 ; Installer display name shown in the window title and installer UI
 Name "${APP_NAME}"
+OutFile "${APP_NAME}-Installer-${VERSION}.exe"
 
-; The installer needs to write under Program Files and modify HKLM; require elevation.
-RequestExecutionLevel admin
+; Default to user-level execution (winget requirement)
+RequestExecutionLevel user
 
+!include MUI2.nsh
 !include nsDialogs.nsh
 !include LogicLib.nsh
+!include FileFunc.nsh
 
-; Use Modern UI 2 so we can set the installer UI icon to the application icon
+!insertmacro GetParameters
+!insertmacro GetOptions
+
+; -------------------------
+; UI configuration
+; -------------------------
 !define MUI_ICON "..\\assets\\icon\\64x64\\io.github.archisman_panigrahi.QuickBib.ico"
-!include MUI2.nsh
+Icon "..\\assets\\icon\\64x64\\io.github.archisman_panigrahi.QuickBib.ico"
+
+; Enable silent installs
+SilentInstall silent
 
 Var RADIO_ALL
 Var RADIO_USER
 Var INSTALL_SCOPE
 
-; Custom page to select installation scope: All users (Program Files) or Current user (LocalAppData)
+; -------------------------
+; Pages
+; -------------------------
+
 Page custom ScopePageCreate ScopePageLeave
-SetCompress off
-
-; The NSIS script lives in the `windows_packaging` directory. Paths in this script
-; are resolved relative to the script's location, so reference files in the repo root
-; using a parent-directory prefix.
-Icon "..\\assets\\icon\\64x64\\io.github.archisman_panigrahi.QuickBib.ico"
-
-OutFile "${APP_NAME}-Installer-${VERSION}.exe"
-InstallDir "$PROGRAMFILES\\${APP_NAME}"
-
 Page directory
 Page instfiles
 
+; -------------------------
+; Initialization
+; -------------------------
+
+Function .onInit
+  ; Default: current user install
+  StrCpy $INSTALL_SCOPE "USER"
+  StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
+
+  ${GetParameters} $R0
+
+  ; Silent ALLUSERS install
+  ${GetOptions} $R0 "/ALLUSERS" $R1
+  ${If} $R1 != ""
+    StrCpy $INSTALL_SCOPE "ALL"
+    StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
+    Return
+  ${EndIf}
+
+  ; Silent CURRENTUSER install (explicit)
+  ${GetOptions} $R0 "/CURRENTUSER" $R1
+  ${If} $R1 != ""
+    StrCpy $INSTALL_SCOPE "USER"
+    StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
+  ${EndIf}
+FunctionEnd
+
+; -------------------------
+; Scope selection UI
+; -------------------------
+
 Function ScopePageCreate
+  IfSilent skipScopePage
+
   nsDialogs::Create 1018
   Pop $0
   ${If} $0 == error
@@ -53,30 +92,45 @@ Function ScopePageCreate
   ${NSD_CreateRadioButton} 0 36u 100% 12u "Install for current user only"
   Pop $RADIO_USER
 
-  ; Default to All users
-  ${NSD_SetState} $RADIO_ALL 1
+  ; Default to current user
+  ${NSD_SetState} $RADIO_USER 1
 
   nsDialogs::Show
+
+skipScopePage:
 FunctionEnd
 
 Function ScopePageLeave
+  IfSilent done
+
   ${NSD_GetState} $RADIO_ALL $0
   ${If} $0 == 1
-    StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
     StrCpy $INSTALL_SCOPE "ALL"
+    StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
   ${Else}
-    StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
     StrCpy $INSTALL_SCOPE "USER"
+    StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
   ${EndIf}
+
+done:
 FunctionEnd
 
-Section "Install"
-  SetOutPath "$INSTDIR"
-  ; Copy all files from the PyInstaller output (dist is at repo root, so step up one dir)
-  File /r "..\\dist\\QuickBib\\*"
+; -------------------------
+; Install section
+; -------------------------
 
-  ; Include repository LICENSE in the installed files so users can view the license
-  ; The LICENSE file is located at the repository root (one directory up from this script)
+Section "Install"
+  ${If} $INSTALL_SCOPE == "ALL"
+    ; Elevate only when needed
+    SetShellVarContext all
+    SetOutPath "$PROGRAMFILES\\${APP_NAME}"
+  ${Else}
+    SetShellVarContext current
+    SetOutPath "$LOCALAPPDATA\\Programs\\${APP_NAME}"
+  ${EndIf}
+
+  ; Copy application files
+  File /r "..\\dist\\QuickBib\\*"
   File "..\\LICENSE"
 
   ; Create Start Menu shortcut
@@ -86,25 +140,27 @@ Section "Install"
   ; Create desktop shortcut
   CreateShortCut "$DESKTOP\\${APP_NAME}.lnk" "$INSTDIR\\QuickBib.exe"
 
-  ; Write install location for uninstaller under HKLM if installing for all users,
-  ; otherwise record under HKCU for current-user installs.
-  StrCmp $INSTALL_SCOPE "ALL" 0 +3
+  ; Registry
+  ${If} $INSTALL_SCOPE == "ALL"
     WriteRegStr HKLM "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir" "$INSTDIR"
-    Goto +2
-  WriteRegStr HKCU "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir" "$INSTDIR"
+  ${Else}
+    WriteRegStr HKCU "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir" "$INSTDIR"
+  ${EndIf}
 
   ; Write Uninstaller
   WriteUninstaller "$INSTDIR\\Uninstall.exe"
 SectionEnd
+
+; -------------------------
+; Uninstall section
+; -------------------------
 
 Section "Uninstall"
   ; Read install dir: prefer HKLM (all-users), fall back to HKCU (current-user)
   ReadRegStr $0 HKLM "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir"
   StrCmp $0 "" 0 +3
     ReadRegStr $0 HKCU "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir"
-    StrCmp $0 "" 0 +2
-      ; No install dir found
-      Goto done
+    StrCmp $0 "" 0 done
 
   ; Remove shortcuts
   Delete "$SMPROGRAMS\\${APP_NAME}\\${APP_NAME}.lnk"
@@ -122,3 +178,4 @@ done:
   ; Remove uninstaller
   Delete "$0\\Uninstall.exe"
 SectionEnd
+
