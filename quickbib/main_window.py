@@ -45,6 +45,9 @@ class QuickBibWindow(QMainWindow):
         self.setWindowTitle("QuickBib: DOI → BibTeX")
         self.resize(500, 380)
 
+        # Set up emoji font support
+        self._emoji_font = self._setup_emoji_font()
+
         central = QWidget()
         self.setCentralWidget(central)
 
@@ -93,6 +96,7 @@ class QuickBibWindow(QMainWindow):
         # Status label
         self.status = QLabel("")
         self.status.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.status.setTextFormat(Qt.TextFormat.RichText)
         vbox.addWidget(self.status)
 
         # Text view
@@ -108,11 +112,49 @@ class QuickBibWindow(QMainWindow):
         vbox.addLayout(btn_box)
 
         copy_btn = QPushButton("📋 Copy to clipboard")
+        copy_btn.setFont(self._emoji_font)
         copy_btn.clicked.connect(self.copy_to_clipboard)
         btn_box.addWidget(copy_btn)
 
         # Keep references to worker/thread so they don't get GC'd
         self._worker_thread = None
+
+    def _setup_emoji_font(self):
+        """Set up a font with good emoji support across different desktop environments."""
+        # Emoji font families with fallbacks (order matters)
+        emoji_fonts = [
+            "Noto Color Emoji",  # Best cross-platform emoji support
+            "Noto Emoji",
+            "Apple Color Emoji",  # macOS
+            "Segoe UI Emoji",  # Windows
+            "DejaVu Sans",  # Good Linux support
+        ]
+        
+        # Get the system default font and preserve its size
+        default_font = QFont()
+        font_size = default_font.pointSize()
+        
+        font = QFont()
+        font.setPointSize(font_size)
+        
+        # Try to set the font family with fallbacks
+        font.setFamilies(emoji_fonts)
+        return font
+
+    def _format_status_with_emoji(self, text: str) -> str:
+        """Format status text with emoji characters using emoji font."""
+        # Find emoji characters and wrap them in HTML with emoji font
+        emoji_list = "✅📋"
+        emoji_font_families = "Noto Color Emoji, Noto Emoji, Apple Color Emoji, Segoe UI Emoji, DejaVu Sans"
+        
+        result = text
+        for emoji in emoji_list:
+            if emoji in result:
+                result = result.replace(
+                    emoji,
+                    f'<span style="font-family: {emoji_font_families}">{emoji}</span>'
+                )
+        return result
 
     def show_about(self):
         dlg = AboutDialog(self)
@@ -146,7 +188,7 @@ class QuickBibWindow(QMainWindow):
     def on_fetch_finished(self, found: bool, bibtex: str, error: object):
         if found:
             self.textview.setPlainText(bibtex)
-            self.status.setText("✅ Fetched successfully.")
+            self.status.setText(self._format_status_with_emoji("✅ Fetched successfully."))
         else:
             self.textview.clear()
             if error:
@@ -161,7 +203,7 @@ class QuickBibWindow(QMainWindow):
         if text.strip():
             ok = copy_to_clipboard(text)
             if ok:
-                self.status.setText("✅ Copied to clipboard!")
+                self.status.setText(self._format_status_with_emoji("✅ Copied to clipboard!"))
             else:
                 self.status.setText("Failed to copy to clipboard.")
         else:
