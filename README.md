@@ -61,7 +61,9 @@ A web app is available at https://quickbib.streamlit.app/.
 
 It is recommended that on macOS you use the [web app](https://quickbib.streamlit.app/) instead. _Continue reading to learn why_.
 
-You can install the app's dependencies with pip and run from source (**see below**). On macOS there are a few platform-specific caveats (Qt and PyQt6 install paths, notarization when packaging, etc.), so the short instructions below focus on running QuickBib from source for development/testing. **If you have a better idea about how to package the macOS app in a more convenient way (without perpetually paying Apple), please let us know in GitHub Issues**.
+No prebuilt macOS installers: Distributing an app that users can graphically install and run seems to require paying Apple perpetually (US$99/year) to sign and notarize the app even if the app is free — that’s plain extortion — so we ship the source instead. You can run QuickBib from source or build a macOS app using the packaging scripts on GitHub. **If you have a better idea about how to package the macOS app in a more convenient way (without perpetually paying Apple), please let us know in GitHub Issues**.
+
+You can install the app's dependencies with pip and run from source (**see below**).
 
 ## How to run from source? (works in GNU/Linux or macOS and perhaps also Windows)
 
