@@ -65,7 +65,7 @@ No prebuilt macOS installers: Distributing an app that users can graphically ins
 
 You can install the app's dependencies with pip and run from source (**see below**).
 
-## How to run from source? (works in GNU/Linux or macOS and perhaps also Windows)
+## How to run from source? (works in GNU/Linux or macOS and perhaps also Windows with a little bit of tweaking)
 
 1. Clone the repo and enter it
 
