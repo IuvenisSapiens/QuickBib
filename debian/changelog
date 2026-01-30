@@ -1,3 +1,9 @@
+quickbib (0.5.2-1) unstable; urgency=medium
+
+  * Fixed emoji in non-KDE desktops
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 30 Jan 2026 07:18:06 +0530
+
 quickbib (0.5.1-1) unstable; urgency=medium
 
   * fix svg icon bug
