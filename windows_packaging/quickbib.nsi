@@ -19,11 +19,7 @@ RequestExecutionLevel user
 !define MUI_ICON "..\\assets\\icon\\64x64\\io.github.archisman_panigrahi.QuickBib.ico"
 !include MUI2.nsh
 
-Var RADIO_ALL
-Var RADIO_USER
 Var INSTALL_SCOPE
-Var CMD_ALLUSERS
-Var CMD_CURRENTUSER
 
 ; The NSIS script lives in the `windows_packaging` directory. Paths in this script
 ; are resolved relative to the script's location, so reference files in the repo root
@@ -31,86 +27,21 @@ Var CMD_CURRENTUSER
 Icon "..\\assets\\icon\\64x64\\io.github.archisman_panigrahi.QuickBib.ico"
 
 OutFile "${APP_NAME}-Installer-${VERSION}.exe"
-InstallDir "$PROGRAMFILES\\${APP_NAME}"
+InstallDir "$LOCALAPPDATA\\Programs\\${APP_NAME}"
 
-; Custom page to select installation scope: All users (Program Files) or Current user (LocalAppData)
-Page custom ScopePageCreate ScopePageLeave
 Page directory
 Page instfiles
 
 SetCompress off
 
 Function .onInit
-  ${GetParameters} $R0
-
-  ClearErrors
-  ${GetOptions} $R0 "/ALLUSERS" $CMD_ALLUSERS
-  ${GetOptions} $R0 "/CURRENTUSER" $CMD_CURRENTUSER
-
-  IfSilent 0 interactive_mode
-
-  ; Silent install handling
-  StrCmp $CMD_ALLUSERS "" 0 silent_all
-  StrCmp $CMD_CURRENTUSER "" 0 silent_user
-
-  ; Default silent install = CURRENTUSER
-  Goto silent_user
-
-silent_all:
-  StrCpy $INSTALL_SCOPE "ALL"
-  StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
-  SetShellVarContext all
-  Goto done
-
-silent_user:
+  ; Force per-user install and context
   StrCpy $INSTALL_SCOPE "USER"
   StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
   SetShellVarContext current
-  Goto done
-
-interactive_mode:
-  ; Default interactive install = ALL users
-  StrCpy $INSTALL_SCOPE "ALL"
-  StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
-  SetShellVarContext all
-
-done:
 FunctionEnd
 
-Function ScopePageCreate
-  nsDialogs::Create 1018
-  Pop $0
-  ${If} $0 == error
-    Abort
-  ${EndIf}
 
-  ${NSD_CreateLabel} 0 0 100% 12u "Install scope"
-  Pop $R0
-
-  ${NSD_CreateRadioButton} 0 20u 100% 12u "Install for all users (requires admin)"
-  Pop $RADIO_ALL
-
-  ${NSD_CreateRadioButton} 0 36u 100% 12u "Install for current user only"
-  Pop $RADIO_USER
-
-  ; Default to All users in GUI
-  ${NSD_SetState} $RADIO_ALL 1
-
-  nsDialogs::Show
-FunctionEnd
-
-Function ScopePageLeave
-  ${NSD_GetState} $RADIO_ALL $0
-  ${If} $0 == 1
-    StrCpy $INSTALL_SCOPE "ALL"
-    StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
-    SetShellVarContext all
-  ${Else}
-    StrCpy $INSTALL_SCOPE "USER"
-    StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
-    SetShellVarContext current
-  ${EndIf}
-FunctionEnd
 
 Section "Install"
 
@@ -118,13 +49,9 @@ Section "Install"
   DetailPrint "INSTALL_SCOPE: $INSTALL_SCOPE"
   DetailPrint "INSTDIR (before): $INSTDIR"
 
-  ; Enforce install dir (MUI may override INSTDIR in silent mode)
-  StrCmp $INSTALL_SCOPE "USER" 0 +3
-    StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
-    SetShellVarContext current
-    Goto +4
-  StrCpy $INSTDIR "$PROGRAMFILES\\${APP_NAME}"
-  SetShellVarContext all
+  ; Force per-user install dir and context
+  StrCpy $INSTDIR "$LOCALAPPDATA\\Programs\\${APP_NAME}"
+  SetShellVarContext current
 
   DetailPrint "INSTDIR (after): $INSTDIR"
   DetailPrint "Starting file copy..."
@@ -145,10 +72,7 @@ Section "Install"
   ; Create desktop shortcut
   CreateShortCut "$DESKTOP\\${APP_NAME}.lnk" "$INSTDIR\\QuickBib.exe"
 
-  ; Write install location for uninstaller
-  StrCmp $INSTALL_SCOPE "ALL" 0 +3
-    WriteRegStr HKLM "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir" "$INSTDIR"
-    Goto +2
+  ; Write install location for uninstaller (per-user)
   WriteRegStr HKCU "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir" "$INSTDIR"
 
   ; Write Uninstaller
@@ -156,12 +80,10 @@ Section "Install"
 SectionEnd
 
 Section "Uninstall"
-  ; Read install dir: prefer HKLM (all-users), fall back to HKCU (current-user)
-  ReadRegStr $0 HKLM "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir"
-  StrCmp $0 "" 0 +3
-    ReadRegStr $0 HKCU "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir"
-    StrCmp $0 "" 0 +2
-      Goto done
+  ; Read install dir from per-user registry
+  ReadRegStr $0 HKCU "Software\\${COMPANY}\\${APP_NAME}" "Install_Dir"
+  StrCmp $0 "" 0 +2
+    Goto done
 
   ; Remove shortcuts
   Delete "$SMPROGRAMS\\${APP_NAME}\\${APP_NAME}.lnk"
@@ -171,8 +93,7 @@ Section "Uninstall"
   ; Delete files
   RMDir /r "$0"
 
-  ; Remove registry
-  DeleteRegKey HKLM "Software\\${COMPANY}\\${APP_NAME}"
+  ; Remove per-user registry
   DeleteRegKey HKCU "Software\\${COMPANY}\\${APP_NAME}"
 
 done:
