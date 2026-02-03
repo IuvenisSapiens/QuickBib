@@ -4,6 +4,10 @@ This is a cross platform app that enables you to get the bibtex entry from a DOI
  
 ![screenshot](assets/screenshots/quickbib_arxiv.png)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=archisman-panigrahi/QuickBib&type=date&legend=top-left)](https://www.star-history.com/#archisman-panigrahi/QuickBib&type=date&legend=top-left)
+
 [![Stargazers repo roster for @archisman-panigrahi/QuickBub](https://reporoster.com/stars/archisman-panigrahi/QuickBib)](https://github.com/archisman-panigrahi/QuickBib/stargazers)
 
 ## How to install?
