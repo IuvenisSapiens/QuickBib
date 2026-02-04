@@ -47,6 +47,12 @@
     <color type="primary" scheme_preference="dark">#421313</color>
   </branding>
   <releases>
+    <release version="0.5.3" date="2026-02-04">
+      <description>
+        <p>add webapp and send feedback buttons</p>
+      </description>
+      <url type="details">https://github.com/archisman-panigrahi/QuickBib/releases/tag/v0.5.3</url>
+    </release>
     <release version="0.5.2" date="2026-01-30">
       <description>
         <p>Fixed emoji in non-KDE desktops</p>
