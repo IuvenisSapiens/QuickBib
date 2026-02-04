@@ -12,14 +12,14 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap, QFont, QIcon
 from PyQt6.QtCore import Qt
 
-from .app_info import APP_NAME, APP_VERSION, HOMEPAGE, REPO_URL, LICENSE_PATH
+from .app_info import APP_NAME, APP_VERSION, HOMEPAGE, REPO_URL, LICENSE_PATH, WEBAPP_URL, ISSUES_URL
 
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("About QuickBib")
-        self.resize(600, 380)
+        self.resize(600, 420)
 
         # Main layout
         vbox = QVBoxLayout()
@@ -89,7 +89,8 @@ class AboutDialog(QDialog):
         <p>
           <b>Homepage:</b> <a href="{HOMEPAGE}">{HOMEPAGE}</a><br>
           <b>Source Code:</b> <a href="{REPO_URL}">{REPO_URL}</a><br>
-          <b>Web app:</b> Check it out <a href="https://quickbib.streamlit.app/">here</a>.
+          <b>Report Issues:</b> Submit issues <a href="{ISSUES_URL}">here</a>.<br><br>
+          <b>Web app:</b> Check it out <a href="{WEBAPP_URL}">here</a>.
         </p>
         <p><b>License:</b> Released under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text">GNU General Public License Version 3</a>. Full text available on the <i>License</i> tab.</p>
         """
