@@ -1,3 +1,9 @@
+quickbib (0.5.4-1) unstable; urgency=medium
+
+  * Fix LICENSE file in Windows
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 06 Feb 2026 17:27:06 -0500
+
 quickbib (0.5.3-1) unstable; urgency=medium
 
   * add webapp and send feedback buttons
