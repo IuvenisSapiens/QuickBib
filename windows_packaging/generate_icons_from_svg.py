@@ -68,6 +68,30 @@ def _try_run(cmd: list[str]) -> bool:
         return False
 
 
+def convert_png_to_ico(png_path: Path, ico_path: Path) -> bool:
+    """Convert a PNG to ICO using ImageMagick's `convert` command."""
+    if shutil.which("convert") is None:
+        print("Warning: ImageMagick 'convert' not found on PATH; skipping .ico generation.")
+        return False
+
+    cmd = ["convert", str(png_path), str(ico_path)]
+    ok = _try_run(cmd)
+    if not ok:
+        print(f"Warning: Failed to convert {png_path} to {ico_path} using 'convert'.")
+    return ok
+
+
+def find_64x64_png() -> Path | None:
+    """Find the first PNG in assets/icon/64x64, if present."""
+    d = ICONS_DIR / "64x64"
+    if not d.exists() or not d.is_dir():
+        return None
+    for p in d.iterdir():
+        if p.suffix.lower() == ".png":
+            return p
+    return None
+
+
 def render_svg_to_pngs(svg: Path) -> None:
     """Render the provided SVG into PNG files for the sizes defined in MAPPING.
 
@@ -180,6 +204,14 @@ def main():
     if not pngs:
         print("No PNG icon sources found in assets/icon/* folders and no SVG rendering available. Nothing to do.")
         return
+
+    png_64 = find_64x64_png()
+    if png_64 is not None:
+        ico_path = png_64.with_suffix(".ico")
+        print(f"Converting {png_64} -> {ico_path} using 'convert'")
+        convert_png_to_ico(png_64, ico_path)
+    else:
+        print("No 64x64 PNG found; skipping .ico generation.")
 
     entries = {}
     for typ, p in pngs.items():

@@ -43,8 +43,8 @@
     </screenshot>
   </screenshots>
   <branding>
-    <color type="primary" scheme_preference="light">#ffeeaa</color>
-    <color type="primary" scheme_preference="dark">#421313</color>
+    <color type="primary" scheme_preference="light">#f6d32d</color>
+    <color type="primary" scheme_preference="dark">#9f72b3</color>
   </branding>
   <releases>
     <release version="0.5.4" date="2026-02-06">
