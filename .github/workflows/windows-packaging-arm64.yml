@@ -1,0 +1,298 @@
+name: Windows packaging (ARM64)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-arm64:
+    runs-on: windows-11-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install NSIS (x64 emulation)
+        shell: pwsh
+        run: |
+          choco install nsis -y
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install pillow
+          # Install project requirements; requirements.txt references doi2bib3 via git+https
+          pip install -r requirements.txt
+
+      - name: Build with PyInstaller (use spec)
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          python -m PyInstaller --noconfirm quickbib.spec
+
+      - name: Add LICENSE to dist output
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dest = Join-Path $env:GITHUB_WORKSPACE 'dist\QuickBib\LICENSE'
+          Copy-Item -Path (Join-Path $env:GITHUB_WORKSPACE 'LICENSE') -Destination $dest -Force
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          Push-Location dist\QuickBib
+          Compress-Archive -Path * -DestinationPath "../../QuickBib-Windows-ARM64-portable-$version.zip"
+          Pop-Location
+
+      - name: Create installer with NSIS (x64 emulation)
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          $candidates = @(
+            'C:\\ProgramData\\chocolatey\\bin\\makensis.exe',
+            'C:\\ProgramData\\chocolatey\\lib\\nsis\\tools\\makensis.exe',
+            'C:\\Program Files\\NSIS\\makensis.exe',
+            'C:\\Program Files (x86)\\NSIS\\makensis.exe'
+          )
+
+          $found = $null
+          foreach ($p in $candidates) {
+            if (Test-Path $p) { $found = $p; break }
+          }
+
+          if (-not $found) {
+            $cmd = Get-Command makensis -ErrorAction SilentlyContinue
+            if ($cmd) { $found = $cmd.Source }
+          }
+
+          if (-not $found) { throw 'makensis not found for x64 emulation on ARM64' }
+
+          Write-Host "Using makensis at: $found (x64 emulation)"
+          & $found "windows_packaging\quickbib.nsi"
+
+      - name: Create MSIX package (layout, manifest, assets)
+        shell: pwsh
+        env:
+          MSIX_PUBLISHER_CN: ${{ secrets.MSIX_PUBLISHER_CN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $workspace = $env:GITHUB_WORKSPACE
+          $layout = Join-Path $workspace 'msix\layout'
+          $assets = Join-Path $layout 'Assets'
+          if (Test-Path $layout) { Remove-Item $layout -Recurse -Force }
+          New-Item -ItemType Directory -Path $layout | Out-Null
+          New-Item -ItemType Directory -Path $assets | Out-Null
+
+          Copy-Item -Path (Join-Path $workspace 'dist\QuickBib\*') -Destination $layout -Recurse -Force
+
+          $py = @()
+          $py += 'from pathlib import Path'
+          $py += 'from PIL import Image'
+          $py += ''
+          $py += ('workspace = Path(r"""' + $workspace + '""")')
+          $py += 'src = workspace / "assets" / "icon" / "192x192" / "io.github.archisman_panigrahi.QuickBib.png"'
+          $py += 'assets = workspace / "msix" / "layout" / "Assets"'
+          $py += 'assets.mkdir(parents=True, exist_ok=True)'
+          $py += ''
+          $py += 'img = Image.open(src).convert("RGBA")'
+          $py += ''
+          $py += 'sizes = {'
+          $py += '    "Square44x44Logo.png": (44, 44),'
+          $py += '    "Square150x150Logo.png": (150, 150),'
+          $py += '    "Wide310x150Logo.png": (310, 150),'
+          $py += '    "Square310x310Logo.png": (310, 310),'
+          $py += '    "StoreLogo.png": (50, 50),'
+          $py += '}'
+          $py += ''
+          $py += 'for name, size in sizes.items():'
+          $py += '    out = img.resize(size, Image.LANCZOS)'
+          $py += '    out.save(assets / name)'
+          $py = $py -join "`n"
+          $pyPath = Join-Path $env:TEMP 'msix_assets.py'
+          Set-Content -Path $pyPath -Value $py -Encoding UTF8
+          python $pyPath
+
+          $version = "${{ github.ref_name }}"
+          $version = $version.TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+(\.\d+)?$') {
+            $version = "0.0.0.0"
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+$') {
+            $version = "$version.0"
+          }
+
+          $identityLine = '  <Identity Name="archisman-panigrahi.QuickBib" Publisher="' + $env:MSIX_PUBLISHER_CN + '" Version="' + $version + '" />'
+          $manifest = @(
+            '<?xml version="1.0" encoding="utf-8"?>',
+            '<Package',
+            '  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"',
+            '  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"',
+            '  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"',
+            '  IgnorableNamespaces="uap rescap">',
+            $identityLine,
+            '  <Properties>',
+            '    <DisplayName>QuickBib</DisplayName>',
+            '    <PublisherDisplayName>archisman-panigrahi</PublisherDisplayName>',
+            '    <Logo>Assets/StoreLogo.png</Logo>',
+            '  </Properties>',
+            '  <Dependencies>',
+            '    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />',
+            '  </Dependencies>',
+            '  <Resources>',
+            '    <Resource Language="en-us" />',
+            '  </Resources>',
+            '  <Applications>',
+            '    <Application Id="QuickBib" Executable="QuickBib.exe" EntryPoint="Windows.FullTrustApplication">',
+            '      <uap:VisualElements',
+            '        DisplayName="QuickBib"',
+            '        Description="QuickBib"',
+            '        BackgroundColor="transparent"',
+            '        Square150x150Logo="Assets/Square150x150Logo.png"',
+            '        Square44x44Logo="Assets/Square44x44Logo.png">',
+            '        <uap:DefaultTile Wide310x150Logo="Assets/Wide310x150Logo.png" Square310x310Logo="Assets/Square310x310Logo.png" />',
+            '      </uap:VisualElements>',
+            '    </Application>',
+            '  </Applications>',
+            '  <Capabilities>',
+            '    <rescap:Capability Name="runFullTrust" />',
+            '  </Capabilities>',
+            '</Package>'
+          ) -join "`n"
+          $manifestPath = Join-Path $layout 'AppxManifest.xml'
+          Set-Content -Path $manifestPath -Value $manifest -Encoding UTF8
+
+      - name: Pack MSIX
+        shell: pwsh
+        env:
+          MSIX_PUBLISHER_CN: ${{ secrets.MSIX_PUBLISHER_CN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $workspace = $env:GITHUB_WORKSPACE
+          $layout = Join-Path $workspace 'msix\layout'
+          $version = "${{ github.ref_name }}"
+          $version = $version.TrimStart('v')
+          if (-not $env:MSIX_PUBLISHER_CN) { throw 'MSIX_PUBLISHER_CN secret is missing' }
+          $publisherTag = $env:MSIX_PUBLISHER_CN -replace '^CN=', ''
+          $publisherTag = $publisherTag -replace '[^A-Za-z0-9._-]', '_'
+          $out = Join-Path $workspace "archisman-panigrahi.QuickBib-$publisherTag-$version-arm64.msix"
+
+          $candidates = @(
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\arm64\\makeappx.exe',
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22000.0\\arm64\\makeappx.exe',
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\arm64\\makeappx.exe',
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\arm64\\makeappx.exe'
+          )
+          $makeappx = $null
+          foreach ($p in $candidates) { if (Test-Path $p) { $makeappx = $p; break } }
+          if (-not $makeappx) {
+            $cmd = Get-Command makeappx -ErrorAction SilentlyContinue
+            if ($cmd) { $makeappx = $cmd.Source }
+          }
+          if (-not $makeappx) {
+            $kitRoot = 'C:\\Program Files (x86)\\Windows Kits\\10\\bin'
+            if (Test-Path $kitRoot) {
+              $found = Get-ChildItem -Path $kitRoot -Recurse -Filter makeappx.exe -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match '\\arm64\\' } |
+                Select-Object -First 1
+              if ($found) { $makeappx = $found.FullName }
+            }
+          }
+          if (-not $makeappx) { throw 'makeappx not found on runner' }
+
+          & $makeappx pack /d $layout /p $out /o
+
+      - name: Sign MSIX
+        shell: pwsh
+        env:
+          MSIX_PUBLISHER_CN: ${{ secrets.MSIX_PUBLISHER_CN }}
+          MSIX_PFX_BASE64: ${{ secrets.MSIX_PFX_BASE64 }}
+          MSIX_PFX_PASSWORD: ${{ secrets.MSIX_PFX_PASSWORD }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:MSIX_PUBLISHER_CN) { throw 'MSIX_PUBLISHER_CN secret is missing' }
+          if (-not $env:MSIX_PFX_BASE64) { throw 'MSIX_PFX_BASE64 secret is missing' }
+          if (-not $env:MSIX_PFX_PASSWORD) { throw 'MSIX_PFX_PASSWORD secret is missing' }
+
+          $workspace = $env:GITHUB_WORKSPACE
+          $pfxPath = Join-Path $workspace 'msix_signing_cert.pfx'
+          [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:MSIX_PFX_BASE64))
+
+          $candidates = @(
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\arm64\\signtool.exe',
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22000.0\\arm64\\signtool.exe',
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\arm64\\signtool.exe',
+            'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\arm64\\signtool.exe'
+          )
+          $signtool = $null
+          foreach ($p in $candidates) { if (Test-Path $p) { $signtool = $p; break } }
+          if (-not $signtool) {
+            $cmd = Get-Command signtool -ErrorAction SilentlyContinue
+            if ($cmd) { $signtool = $cmd.Source }
+          }
+          if (-not $signtool) {
+            $kitRoot = 'C:\\Program Files (x86)\\Windows Kits\\10\\bin'
+            if (Test-Path $kitRoot) {
+              $found = Get-ChildItem -Path $kitRoot -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match '\\arm64\\' } |
+                Select-Object -First 1
+              if ($found) { $signtool = $found.FullName }
+            }
+          }
+          if (-not $signtool) { throw 'signtool not found on runner' }
+
+          $version = "${{ github.ref_name }}"
+          $version = $version.TrimStart('v')
+          $publisherTag = $env:MSIX_PUBLISHER_CN -replace '^CN=', ''
+          $publisherTag = $publisherTag -replace '[^A-Za-z0-9._-]', '_'
+          $msix = Join-Path $workspace "archisman-panigrahi.QuickBib-$publisherTag-$version-arm64.msix"
+          & $signtool sign /fd SHA256 /f $pfxPath /p $env:MSIX_PFX_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $msix
+
+      - name: Upload installer artifact
+        if: ${{ hashFiles('windows_packaging/QuickBib-Installer-*.exe') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickBib-windows-installer-arm64
+          path: windows_packaging/QuickBib-Installer-*.exe
+
+      - name: Upload portable ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickBib-windows-portable-arm64
+          path: QuickBib-Windows-ARM64-portable-*.zip
+
+      - name: Upload MSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickBib-windows-msix-arm64
+          path: archisman-panigrahi.QuickBib-*-arm64.msix
+
+      - name: Upload artifacts to GitHub Release (only for releases)
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            windows_packaging/QuickBib-Installer-*.exe
+            QuickBib-Windows-ARM64-portable-*.zip
+            archisman-panigrahi.QuickBib-*-arm64.msix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

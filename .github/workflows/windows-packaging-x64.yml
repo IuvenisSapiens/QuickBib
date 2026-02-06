@@ -90,7 +90,7 @@ jobs:
         run: |
           $version = "${{ github.ref_name }}"
           Push-Location dist\QuickBib
-          Compress-Archive -Path * -DestinationPath "../../QuickBib-Windows-portable-$version.zip"
+          Compress-Archive -Path * -DestinationPath "../../QuickBib-Windows-x64-portable-$version.zip"
           Pop-Location
 
       - name: Create installer with NSIS
@@ -129,6 +129,18 @@ jobs:
 
           Write-Host "Using makensis at: $found"
           & $found "windows_packaging\quickbib.nsi"
+
+      - name: Rename installer for x64
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $installer = Get-ChildItem windows_packaging/QuickBib-Installer-*.exe | Select-Object -First 1
+          if ($installer) {
+            $newName = "QuickBib-Installer-$version-x64.exe"
+            Rename-Item -Path $installer.FullName -NewName $newName -Force
+          } else {
+            Write-Host "Installer not found to rename"
+          }
 
       - name: Test silent user install
         shell: pwsh
@@ -185,13 +197,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: QuickBib-windows-installer
-          path: windows_packaging/QuickBib-Installer-*.exe
+          path: windows_packaging/QuickBib-Installer-*-x64.exe
 
       - name: Upload portable ZIP artifact
         uses: actions/upload-artifact@v4
         with:
           name: QuickBib-windows-portable
-          path: QuickBib-Windows-portable-*.zip
+          path: QuickBib-Windows-x64-portable-*.zip
 
       - name: Create MSIX package (layout, manifest, assets)
         shell: pwsh
@@ -302,7 +314,7 @@ jobs:
           if (-not $env:MSIX_PUBLISHER_CN) { throw 'MSIX_PUBLISHER_CN secret is missing' }
           $publisherTag = $env:MSIX_PUBLISHER_CN -replace '^CN=', ''
           $publisherTag = $publisherTag -replace '[^A-Za-z0-9._-]', '_'
-          $out = Join-Path $workspace "archisman-panigrahi.QuickBib-$publisherTag-$version.msix"
+          $out = Join-Path $workspace "archisman-panigrahi.QuickBib-$publisherTag-$version-x64.msix"
 
           $candidates = @(
             'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64\\makeappx.exe',
@@ -372,23 +384,23 @@ jobs:
           $version = $version.TrimStart('v')
           $publisherTag = $env:MSIX_PUBLISHER_CN -replace '^CN=', ''
           $publisherTag = $publisherTag -replace '[^A-Za-z0-9._-]', '_'
-          $msix = Join-Path $workspace "archisman-panigrahi.QuickBib-$publisherTag-$version.msix"
+          $msix = Join-Path $workspace "archisman-panigrahi.QuickBib-$publisherTag-$version-x64.msix"
           & $signtool sign /fd SHA256 /f $pfxPath /p $env:MSIX_PFX_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $msix
 
       - name: Upload MSIX artifact
         uses: actions/upload-artifact@v4
         with:
           name: QuickBib-windows-msix
-          path: archisman-panigrahi.QuickBib-*.msix
+          path: archisman-panigrahi.QuickBib-*-x64.msix
 
       - name: Upload installer to GitHub Release (only for releases)
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            windows_packaging/QuickBib-Installer-*.exe
-            QuickBib-Windows-portable-*.zip
-            archisman-panigrahi.QuickBib-*.msix
+            windows_packaging/QuickBib-Installer-*-x64.exe
+            QuickBib-Windows-x64-portable-*.zip
+            archisman-panigrahi.QuickBib-*-x64.msix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
