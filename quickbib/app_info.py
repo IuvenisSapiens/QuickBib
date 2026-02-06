@@ -11,3 +11,5 @@ ISSUES_URL = "https://github.com/archisman-panigrahi/QuickBib/issues"
 # Use resolve().parent.parent so this works when the package is imported from
 # an installed location or run from source.
 LICENSE_PATH = Path(__file__).resolve().parent.parent / "LICENSE"
+# Fallback: when running from a bundled EXE, LICENSE is alongside the executable
+LICENSE_PATH_FALLBACK = Path(sys.executable).resolve().parent / "LICENSE"

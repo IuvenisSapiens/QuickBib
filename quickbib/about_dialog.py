@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap, QFont, QIcon
 from PyQt6.QtCore import Qt
 
-from .app_info import APP_NAME, APP_VERSION, HOMEPAGE, REPO_URL, LICENSE_PATH, WEBAPP_URL, ISSUES_URL
+from .app_info import APP_NAME, APP_VERSION, HOMEPAGE, REPO_URL, LICENSE_PATH, LICENSE_PATH_FALLBACK, WEBAPP_URL, ISSUES_URL
 
 
 class AboutDialog(QDialog):
@@ -117,14 +117,15 @@ class AboutDialog(QDialog):
         tabs.addTab(authors_text, "Authors")
 
         license_text = QTextBrowser()
-        if LICENSE_PATH.exists():
+        if LICENSE_PATH.exists() or LICENSE_PATH_FALLBACK.exists():
+            license_file = LICENSE_PATH if LICENSE_PATH.exists() else LICENSE_PATH_FALLBACK
             try:
-                license_content = LICENSE_PATH.read_text(encoding="utf-8")
+                license_content = license_file.read_text(encoding="utf-8")
                 license_text.setPlainText(license_content)
             except Exception:
                 license_text.setHtml("<p>Unable to read LICENSE file.</p>")
         else:
-            license_text.setHtml(f"<p>License file not found in repository. See <a href=\"{REPO_URL}\">project page</a>.</p>")
+            license_text.setHtml(f"<p>GPLv3 license text not found in repository. See the <a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html#license-text\">Read it online</a>.</p>")
         tabs.addTab(license_text, "License")
 
         btn_hbox = QHBoxLayout()
