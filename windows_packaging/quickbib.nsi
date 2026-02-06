@@ -63,7 +63,7 @@ Section "Install"
   DetailPrint "File copy completed"
 
   ; Include repository LICENSE in the installed files so users can view the license
-  File "..\\LICENSE"
+  File /oname=LICENSE "..\\LICENSE"
 
   ; Create Start Menu shortcut
   CreateDirectory "$SMPROGRAMS\\${APP_NAME}"
