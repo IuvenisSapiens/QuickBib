@@ -58,7 +58,14 @@ meson uninstall -C builddir
 ```
 
 ### Windows
-Prebuilt installers are available to download in [GitHub Releases](https://github.com/archisman-panigrahi/QuickBib/releases/latest). Note that Windows smartscreen might complain because it doesn't know about this app and you would have to [manually bypass it](https://www.thewindowsclub.com/microsoft-defender-smartscreen-prevented-an-unrecognized-app-from-starting).
+
+QuickBib is available on Microsoft Store.
+
+<a href="https://apps.microsoft.com/detail/9pk4hvx04jdq?referrer=appbadge&mode=full" target="_blank"  rel="noopener noreferrer">
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
+
+Alternatively, prebuilt installers are available to download from [GitHub Releases](https://github.com/archisman-panigrahi/QuickBib/releases/latest). Note that Windows smartscreen might complain because it doesn't know about this app and you would have to [manually bypass it](https://www.thewindowsclub.com/microsoft-defender-smartscreen-prevented-an-unrecognized-app-from-starting).
 
 ### Web App
 A web app is available at https://quickbib.streamlit.app/.
