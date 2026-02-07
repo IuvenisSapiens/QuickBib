@@ -89,6 +89,16 @@ jobs:
           Write-Host "Using makensis at: $found (x64 emulation)"
           & $found "windows_packaging\quickbib.nsi"
 
+      - name: Rename installer for arm64
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $installer = Get-ChildItem -Path "windows_packaging" -Filter "QuickBib-Installer-*.exe" |
+            Select-Object -First 1
+          if (-not $installer) { throw 'NSIS installer not found' }
+          $newName = "QuickBib-Installer-$version-arm64.exe"
+          Rename-Item -Path $installer.FullName -NewName $newName -Force
+
       - name: Create MSIX package (layout, manifest, assets)
         shell: pwsh
         env:
