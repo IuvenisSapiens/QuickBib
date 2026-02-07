@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 # Application metadata
 APP_NAME = "QuickBib"
