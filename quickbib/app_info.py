@@ -2,7 +2,7 @@ from pathlib import Path
 
 # Application metadata
 APP_NAME = "QuickBib"
-APP_VERSION = "0.5.4"
+APP_VERSION = "0.6.0"
 HOMEPAGE = "https://archisman-panigrahi.github.io/QuickBib/"
 REPO_URL = "https://github.com/archisman-panigrahi/QuickBib"
 WEBAPP_URL = "https://quickbib.streamlit.app/"

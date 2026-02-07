@@ -47,6 +47,12 @@
     <color type="primary" scheme_preference="dark">#9f72b3</color>
   </branding>
   <releases>
+    <release version="0.6.0" date="2026-02-06">
+      <description>
+        <p>updated icon</p>
+      </description>
+      <url type="details">https://github.com/archisman-panigrahi/QuickBib/releases/tag/v0.6.0</url>
+    </release>
     <release version="0.5.4" date="2026-02-06">
       <description>
         <p>Fix LICENSE file in Windows</p>
