@@ -24,14 +24,14 @@ import shutil
 import subprocess
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
-ICONS_DIR = ROOT / "assets" / "icon"
+ICONS_DIR = Path(__file__).resolve().parent
 OUT_ICNS = ICONS_DIR / "QuickBib.icns"
 
 # Map folder names (or sizes) to icns type codes. This is a pragmatic mapping
 # that covers common icon sizes. The type codes expect PNG data for modern
 # macOS systems.
 MAPPING: Dict[str, str] = {
+    "14x14": "icp4",   # 14x14 (best-effort mapping)
     "16x16": "icp4",   # 16x16
     "32x32": "icp5",   # 32x32
     "64x64": "icp6",   # 64x64
