@@ -21,9 +21,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="0.70694375"
-     inkscape:cx="500.74705"
-     inkscape:cy="410.21651"
+     inkscape:zoom="0.49988472"
+     inkscape:cx="1180.2721"
+     inkscape:cy="352.08118"
      inkscape:window-width="1852"
      inkscape:window-height="1048"
      inkscape:window-x="68"
@@ -781,6 +781,14 @@
     <g
        id="g3"
        transform="matrix(0.91867962,0,0,0.91867962,25.538096,-80.21194)">
+      <rect
+         style="fill:#e9ddaf;stroke-width:2.7545;stroke-linecap:round"
+         id="rect1"
+         width="1119.6879"
+         height="1316.5559"
+         x="-28.035765"
+         y="-63.391838"
+         ry="108.62643" />
       <path
          id="path42"
          style="fill:#bcc1b9;fill-opacity:1;stroke-width:2.02544;filter:url(#filter42)"
