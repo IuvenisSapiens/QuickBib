@@ -109,7 +109,7 @@ class AboutDialog(QDialog):
           <li><a href="https://github.com/Kyuyrii/">Kyuyrii</a>: Helped fix the snap package.</li>
         </ul>
         <p> This project was inspired by <a href="https://github.com/bibcure/doi2bib">doi2bib</a>, whose development unfortunately stopped.</p>
-        <p> This project would not have been possible without the help from GitHub copilot.</p>
+        <p> This project would not have been possible without the help from GitHub Copilot.</p>
         <p>Bug reports and pull requests are welcome on the <a href="{REPO_URL}">project's GitHub page</a>.</p>
         """
         authors_text.setHtml(authors_html)
@@ -131,7 +131,7 @@ class AboutDialog(QDialog):
         btn_hbox = QHBoxLayout()
         btn_hbox.addStretch()
 
-        dedication = QLabel("<em>Dedicated to all my friends</em>")
+        dedication = QLabel("<em>Dedicated to all my friends 😊</em>")
         dedication.setAlignment(Qt.AlignmentFlag.AlignCenter)
         dedication.setMinimumWidth(240)
         btn_hbox.addWidget(dedication)

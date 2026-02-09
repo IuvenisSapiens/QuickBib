@@ -4,16 +4,18 @@ from PyQt6.QtWidgets import (
         QHBoxLayout,
         QPushButton,
         QLabel,
-        QPlainTextEdit,
+        QLineEdit,
 )
-from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QSyntaxHighlighter, QFontMetrics, QFontDatabase
-from PyQt6.QtCore import Qt, QRegularExpression
+from PyQt6.QtGui import QFont, QFontDatabase
+from PyQt6.QtCore import Qt
+
+from .helpers import copy_to_clipboard
 
 
 class HowToUseDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("How to use QuickBib")
+        self.setWindowTitle("Example inputs for QuickBib")
         self.resize(700, 460)
 
         vbox = QVBoxLayout()
@@ -21,7 +23,7 @@ class HowToUseDialog(QDialog):
         vbox.setSpacing(8)
         self.setLayout(vbox)
 
-        header = QLabel("Quick examples and usage")
+        header = QLabel("Examples of what you can paste into QuickBib main window:")
         header_font = QFont()
         header_font.setPointSize(14)
         header_font.setBold(True)
@@ -43,9 +45,6 @@ class HowToUseDialog(QDialog):
         code_font.setStyleHint(QFont.StyleHint.Monospace)
         code_font.setFixedPitch(True)
 
-        # Precompute font metrics for the monospace font once
-        fm = QFontMetrics(code_font)
-
         examples = [
             ("DOI", "10.1038/nphys1170"),
             ("DOI link", "https://doi.org/10.1038/nphys1170"),
@@ -57,41 +56,26 @@ class HowToUseDialog(QDialog):
             ("Title (fuzzy search)", "Projected Topological Branes"),
         ]
 
-        # Define a simple highlighter to apply to each example code widget
-        class SimpleHighlighter(QSyntaxHighlighter):
-            def __init__(self, parent=None):
-                super().__init__(parent)
-                self.rules = []
-                # Strings format
-                str_fmt = QTextCharFormat()
-                str_fmt.setForeground(QColor('#008000'))
-                self.rules.append((QRegularExpression(r'".*?"'), str_fmt))
-                self.rules.append((QRegularExpression(r"'.*?'"), str_fmt))
-
-                # URLs (simple)
-                url_fmt = QTextCharFormat()
-                url_fmt.setForeground(QColor('#0000FF'))
-                self.rules.append((QRegularExpression(r'https?://[^\s]+'), url_fmt))
-
-        # Create code widgets for each example and attach the highlighter
+        # Create compact copyable boxes for each example
         for label_text, example_text in examples:
             lbl = QLabel(label_text)
             vbox.addWidget(lbl)
-            w = QPlainTextEdit()
-            w.setReadOnly(True)
-            w.setFont(code_font)
-            # Trim and set the example text exactly, avoid trailing newlines
             text = example_text.strip()
-            w.setPlainText(text)
-            # Compute a compact height: one line + small padding
-            line_height = fm.lineSpacing()
-            # number of lines in text (split on \n)
-            lines = max(1, text.count('\n') + 1)
-            padding = 8
-            w.setFixedHeight(line_height * lines + padding)
 
-            vbox.addWidget(w)
-            SimpleHighlighter(w.document())
+            row = QHBoxLayout()
+            field = QLineEdit()
+            field.setReadOnly(True)
+            field.setFont(code_font)
+            field.setText(text)
+            field.setMinimumHeight(26)
+            row.addWidget(field, 1)
+
+            copy_btn = QPushButton("Copy")
+            copy_btn.setFixedHeight(26)
+            copy_btn.clicked.connect(lambda _=False, t=text: copy_to_clipboard(t))
+            row.addWidget(copy_btn)
+
+            vbox.addLayout(row)
 
         btn_hbox = QHBoxLayout()
         btn_hbox.addStretch()
