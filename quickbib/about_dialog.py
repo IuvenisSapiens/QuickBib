@@ -89,7 +89,7 @@ class AboutDialog(QDialog):
         <p>
           <b>Homepage:</b> <a href="{HOMEPAGE}">{HOMEPAGE}</a><br>
           <b>Source Code:</b> <a href="{REPO_URL}">{REPO_URL}</a><br>
-          <b>Report Issues:</b> <a href="{ISSUES_URL}"></a><br><br>
+          <b>Report Issues:</b> <a href="{ISSUES_URL}">{ISSUES_URL}</a><br><br>
           <b>Web app:</b> Check it out <a href="{WEBAPP_URL}">here</a>.
         </p>
         <p><b>License:</b> Released under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text">GNU General Public License Version 3</a>. Full text available on the <i>License</i> tab.</p>
