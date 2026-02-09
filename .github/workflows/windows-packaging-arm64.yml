@@ -151,7 +151,7 @@ jobs:
             $version = "$version.0"
           }
 
-          $identityLine = '  <Identity Name="archisman-panigrahi.QuickBib" Publisher="' + $env:MSIX_PUBLISHER_CN + '" Version="' + $version + '" />'
+          $identityLine = '  <Identity Name="archisman-panigrahi.QuickBib" Publisher="' + $env:MSIX_PUBLISHER_CN + '" Version="' + $version + '" ProcessorArchitecture="arm64" />'
           $manifest = @(
             '<?xml version="1.0" encoding="utf-8"?>',
             '<Package',
