@@ -65,9 +65,15 @@ QuickBib is available on Microsoft Store.
 	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
 
+It can be also installed via `winget`. Open Windows Terminal/Powershell and run
+```
+winget install -e --id archisman-panigrahi.QuickBib
+```
+
 Alternatively, prebuilt installers are available to download from [GitHub Releases](https://github.com/archisman-panigrahi/QuickBib/releases/latest). Note that Windows smartscreen might complain because it doesn't know about this app and you would have to [manually bypass it](https://www.thewindowsclub.com/microsoft-defender-smartscreen-prevented-an-unrecognized-app-from-starting).
 
 ### Web App
+
 A web app is available at https://quickbib.streamlit.app/.
 
 ### macOS
