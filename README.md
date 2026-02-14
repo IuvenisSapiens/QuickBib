@@ -89,8 +89,8 @@ You can install the app's dependencies with pip and run from source (**see below
 1. Clone the repo and enter it
 
 ```
-git clone https://github.com/archisman-panigrahi/quickbib.git
-cd quickbib
+git clone https://github.com/archisman-panigrahi/QuickBib.git
+cd QuickBib
 ```
 
 2. Create and activate a virtual environment (recommended)
