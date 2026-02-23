@@ -43,8 +43,9 @@ QuickBib is available on Flathub and Snap Store.
     <img height='55' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
 </a>
 
-#### Install from source with meson
+#### Install from source with meson in GNU/Linux
 Install the required dependencies, pyqt6 and [doi2bib3](https://github.com/archisman-panigrahi/doi2bib3). Afterwards, you can use meson to install quickbib.
+
 ```
 git clone https://github.com/archisman-panigrahi/QuickBib.git
 cd QuickBib
@@ -103,7 +104,7 @@ source .venv/bin/activate
 3. Upgrade pip and install dependencies
 
 ```
-python -m pip install --upgrade pip
+python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
@@ -123,16 +124,17 @@ Or run the convenience script in `bin/quickbib`:
 
 ## Translations
 
-QuickBib now uses JSON-based translations in `quickbib/locales/.
-Except Bengali, the other translations were done with AI. PRs for modifications and addition
-of new languages are welcome!
+QuickBib now uses JSON-based translations in `quickbib/locales/`. All translations
+were initially done with AI and only some were later modified by native speakers.
+Therefore there may be some mistakes/bad translation.
+PRs for modifications and addition of new languages are welcome!
 
 1. Copy `quickbib/locales/en.json` to a new file like `quickbib/locales/es.json`.
 2. Translate the values, keeping keys unchanged.
 3. Validate files locally:
 
 ```
-python tools/check_translations.py
+python3 tools/check_translations.py
 ```
 
 4. Open a pull request.
