@@ -22,6 +22,7 @@ from .helpers import get_bibtex_for_doi, copy_to_clipboard
 from .about_dialog import AboutDialog
 from .how_to_use_dialog import HowToUseDialog
 from .app_info import LICENSE_PATH, WEBAPP_URL, ISSUES_URL
+from .i18n import tr
 
 
 class FetchWorker(QObject):
@@ -42,7 +43,7 @@ class FetchWorker(QObject):
 class QuickBibWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QuickBib: DOI → BibTeX")
+        self.setWindowTitle(tr("window.title"))
         self.resize(500, 380)
 
         # Set up emoji font support
@@ -56,38 +57,38 @@ class QuickBibWindow(QMainWindow):
 
         # Menu bar
         menubar = self.menuBar()
-        file_menu = menubar.addMenu("&File")
-        quit_action = QAction("🚪 &Quit", self)
+        file_menu = menubar.addMenu(tr("menu.file"))
+        quit_action = QAction(tr("action.quit"), self)
         quit_action.setFont(self._emoji_font)
         quit_action.triggered.connect(self.close)
         file_menu.addAction(quit_action)
 
-        edit_menu = menubar.addMenu("&Edit")
-        copy_action = QAction("📋 &Copy BibTeX", self)
+        edit_menu = menubar.addMenu(tr("menu.edit"))
+        copy_action = QAction(tr("action.copy_bibtex"), self)
         copy_action.setFont(self._emoji_font)
         copy_action.setShortcut("Ctrl+C")
         copy_action.triggered.connect(self.copy_to_clipboard)
         edit_menu.addAction(copy_action)
 
-        help_menu = menubar.addMenu("&Help")
-        about_action = QAction("🤔 &About QuickBib", self)
+        help_menu = menubar.addMenu(tr("menu.help"))
+        about_action = QAction(tr("action.about"), self)
         about_action.setFont(self._emoji_font)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
 
-        howto_action = QAction("📘 &Examples", self)
+        howto_action = QAction(tr("action.examples"), self)
         howto_action.setFont(self._emoji_font)
         howto_action.triggered.connect(self.show_how_to_use)
         help_menu.addAction(howto_action)
 
         help_menu.addSeparator()
 
-        webapp_action = QAction("🌐 Web App", self)
+        webapp_action = QAction(tr("action.webapp"), self)
         webapp_action.setFont(self._emoji_font)
         webapp_action.triggered.connect(lambda: self._open_url(WEBAPP_URL))
         help_menu.addAction(webapp_action)
 
-        feedback_action = QAction("💬 Send Feedback", self)
+        feedback_action = QAction(tr("action.feedback"), self)
         feedback_action.setFont(self._emoji_font)
         feedback_action.triggered.connect(lambda: self._open_url(ISSUES_URL))
         help_menu.addAction(feedback_action)
@@ -97,17 +98,17 @@ class QuickBibWindow(QMainWindow):
         quick_links.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         vbox.addLayout(quick_links)
 
-        webapp_btn = QPushButton("🌐 Web App")
+        webapp_btn = QPushButton(tr("button.webapp"))
         webapp_btn.setFont(self._emoji_font)
         webapp_btn.clicked.connect(lambda: self._open_url(WEBAPP_URL))
         quick_links.addWidget(webapp_btn)
 
-        howto_btn = QPushButton("📘 Examples")
+        howto_btn = QPushButton(tr("button.examples"))
         howto_btn.setFont(self._emoji_font)
         howto_btn.clicked.connect(self.show_how_to_use)
         quick_links.addWidget(howto_btn)
 
-        feedback_btn = QPushButton("💬 Send Feedback")
+        feedback_btn = QPushButton(tr("button.feedback"))
         feedback_btn.setFont(self._emoji_font)
         feedback_btn.clicked.connect(lambda: self._open_url(ISSUES_URL))
         quick_links.addWidget(feedback_btn)
@@ -118,16 +119,16 @@ class QuickBibWindow(QMainWindow):
         entry_box = QHBoxLayout()
         vbox.addLayout(entry_box)
 
-        label = QLabel("DOI:")
+        label = QLabel(tr("label.doi"))
         entry_box.addWidget(label)
 
         self.doi_entry = QLineEdit()
-        self.doi_entry.setPlaceholderText("DOI or arXiv ID or arXiv URL or Journal URL or Article Title")
+        self.doi_entry.setPlaceholderText(tr("placeholder.query"))
         entry_box.addWidget(self.doi_entry)
         # Trigger fetch when user presses Enter in the DOI entry
         self.doi_entry.returnPressed.connect(self.fetch_bibtex)
 
-        fetch_btn = QPushButton("Fetch")
+        fetch_btn = QPushButton(tr("button.fetch"))
         fetch_btn.clicked.connect(self.fetch_bibtex)
         entry_box.addWidget(fetch_btn)
 
@@ -149,7 +150,7 @@ class QuickBibWindow(QMainWindow):
         btn_box.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         vbox.addLayout(btn_box)
 
-        copy_btn = QPushButton("📋 Copy to Clipboard")
+        copy_btn = QPushButton(tr("button.copy_clipboard"))
         copy_btn.setFont(self._emoji_font)
         copy_btn.clicked.connect(self.copy_to_clipboard)
         btn_box.addWidget(copy_btn)
@@ -199,7 +200,7 @@ class QuickBibWindow(QMainWindow):
         try:
             QDesktopServices.openUrl(QUrl(url))
         except Exception:
-            self.status.setText(self._format_status_with_emoji("ℹ️ Failed to open link."))
+            self.status.setText(self._format_status_with_emoji(tr("status.link_open_failed")))
 
     def show_about(self):
         dlg = AboutDialog(self)
@@ -212,10 +213,10 @@ class QuickBibWindow(QMainWindow):
     def fetch_bibtex(self):
         doi = self.doi_entry.text().strip()
         if not doi:
-            self.status.setText(self._format_status_with_emoji("ℹ️ Please enter a valid DOI. See \"Help → Examples\" for more info."))
+            self.status.setText(self._format_status_with_emoji(tr("status.enter_valid_doi")))
             return
 
-        self.status.setText("Fetching BibTeX...")
+        self.status.setText(tr("status.fetching"))
         self.textview.clear()
 
         worker = FetchWorker(doi)
@@ -233,13 +234,13 @@ class QuickBibWindow(QMainWindow):
     def on_fetch_finished(self, found: bool, bibtex: str, error: object):
         if found:
             self.textview.setPlainText(bibtex)
-            self.status.setText(self._format_status_with_emoji("✅ Fetched successfully."))
+            self.status.setText(self._format_status_with_emoji(tr("status.fetch_success")))
         else:
             self.textview.clear()
             if error:
-                self.status.setText(self._format_status_with_emoji(f"ℹ️ Error: {error}"))
+                self.status.setText(self._format_status_with_emoji(tr("status.error", error=error)))
             else:
-                self.status.setText(self._format_status_with_emoji("ℹ️ Error: DOI not found or CrossRef request failed."))
+                self.status.setText(self._format_status_with_emoji(tr("status.error_not_found")))
 
         self._worker_thread = None
 
@@ -248,8 +249,8 @@ class QuickBibWindow(QMainWindow):
         if text.strip():
             ok = copy_to_clipboard(text)
             if ok:
-                self.status.setText(self._format_status_with_emoji("✅ Copied to clipboard!"))
+                self.status.setText(self._format_status_with_emoji(tr("status.copy_success")))
             else:
-                self.status.setText(self._format_status_with_emoji("ℹ️ Failed to copy to clipboard."))
+                self.status.setText(self._format_status_with_emoji(tr("status.copy_failed")))
         else:
-            self.status.setText(self._format_status_with_emoji("ℹ️ Nothing to copy."))
+            self.status.setText(self._format_status_with_emoji(tr("status.nothing_to_copy")))

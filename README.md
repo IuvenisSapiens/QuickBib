@@ -120,3 +120,23 @@ Or run the convenience script in `bin/quickbib`:
 ```
 ./bin/quickbib
 ```
+
+## Translations
+
+QuickBib now uses JSON-based translations in `quickbib/locales/` so anyone can add a new language with a PR.
+
+1. Copy `quickbib/locales/en.json` to a new file like `quickbib/locales/es.json`.
+2. Translate the values, keeping keys unchanged.
+3. Validate files locally:
+
+```
+python tools/check_translations.py
+```
+
+4. Open a pull request.
+
+To test a specific locale locally, set `QUICKBIB_LANG`, for example:
+
+```
+QUICKBIB_LANG=es python3 -m quickbib
+```

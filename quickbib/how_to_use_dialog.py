@@ -10,12 +10,13 @@ from PyQt6.QtGui import QFont, QFontDatabase
 from PyQt6.QtCore import Qt
 
 from .helpers import copy_to_clipboard
+from .i18n import tr
 
 
 class HowToUseDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Example inputs for QuickBib")
+        self.setWindowTitle(tr("examples.window_title"))
         self.resize(700, 460)
 
         vbox = QVBoxLayout()
@@ -23,7 +24,7 @@ class HowToUseDialog(QDialog):
         vbox.setSpacing(8)
         self.setLayout(vbox)
 
-        header = QLabel("Examples of what you can paste into QuickBib main window:")
+        header = QLabel(tr("examples.header"))
         header_font = QFont()
         header_font.setPointSize(14)
         header_font.setBold(True)
@@ -46,14 +47,14 @@ class HowToUseDialog(QDialog):
         code_font.setFixedPitch(True)
 
         examples = [
-            ("DOI", "10.1038/nphys1170"),
-            ("DOI link", "https://doi.org/10.1038/nphys1170"),
-            ("arXiv URL", "https://arxiv.org/abs/2411.08091"),
-            ("arXiv ID", "arXiv:2411.08091"),
-            ("arXiv ID (short)", "2411.08091"),
-            ("Old arXiv ID", "hep-th/9901001"),
-            ("Journal URL (works with APS, AMS, ACS, PNAS, Nature...)", "https://journals.aps.org/prl/abstract/10.1103/v6r7-4ph9"),
-            ("Title (fuzzy search)", "Projected Topological Branes"),
+            (tr("examples.label.doi"), "10.1038/nphys1170"),
+            (tr("examples.label.doi_link"), "https://doi.org/10.1038/nphys1170"),
+            (tr("examples.label.arxiv_url"), "https://arxiv.org/abs/2411.08091"),
+            (tr("examples.label.arxiv_id"), "arXiv:2411.08091"),
+            (tr("examples.label.arxiv_id_short"), "2411.08091"),
+            (tr("examples.label.old_arxiv_id"), "hep-th/9901001"),
+            (tr("examples.label.journal_url"), "https://journals.aps.org/prl/abstract/10.1103/v6r7-4ph9"),
+            (tr("examples.label.title_fuzzy"), "Projected Topological Branes"),
         ]
 
         # Create compact copyable boxes for each example
@@ -70,7 +71,7 @@ class HowToUseDialog(QDialog):
             field.setMinimumHeight(26)
             row.addWidget(field, 1)
 
-            copy_btn = QPushButton("Copy")
+            copy_btn = QPushButton(tr("button.copy"))
             copy_btn.setFixedHeight(26)
             copy_btn.clicked.connect(lambda _=False, t=text: copy_to_clipboard(t))
             row.addWidget(copy_btn)
@@ -79,7 +80,7 @@ class HowToUseDialog(QDialog):
 
         btn_hbox = QHBoxLayout()
         btn_hbox.addStretch()
-        close_btn = QPushButton("\u2715 Close")
+        close_btn = QPushButton(tr("button.close"))
         close_btn.setFixedHeight(28)
         close_btn.clicked.connect(self.reject)
         btn_hbox.addWidget(close_btn)
