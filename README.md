@@ -123,7 +123,9 @@ Or run the convenience script in `bin/quickbib`:
 
 ## Translations
 
-QuickBib now uses JSON-based translations in `quickbib/locales/` so anyone can add a new language with a PR.
+QuickBib now uses JSON-based translations in `quickbib/locales/.
+Except Bengali, the other translations were done with AI. PRs for modifications and addition
+of new languages are welcome!
 
 1. Copy `quickbib/locales/en.json` to a new file like `quickbib/locales/es.json`.
 2. Translate the values, keeping keys unchanged.
