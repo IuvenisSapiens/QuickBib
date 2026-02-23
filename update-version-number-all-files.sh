@@ -80,4 +80,10 @@ if [ -f "$METAINFO" ]; then
     echo "Updated $METAINFO"
 fi
 
+# 7. Update AUR/PKGBUILD
+if [ -f AUR/PKGBUILD ]; then
+    sed -i "s/^pkgver=[0-9.]*/pkgver=$NEW_VERSION/" AUR/PKGBUILD
+    echo "Updated AUR/PKGBUILD"
+fi
+
 echo "All done. Version updated to $NEW_VERSION."
