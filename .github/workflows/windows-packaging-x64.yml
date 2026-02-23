@@ -11,6 +11,7 @@ on:
         type: string
 
 permissions:
+  actions: read
   contents: write
 
 jobs:
@@ -448,3 +449,59 @@ jobs:
             archisman-panigrahi.QuickBib-*-x64.msix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for ARM64 release workflow
+        if: github.event_name == 'release' && !github.event.release.prerelease
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const arm64WorkflowName = "Windows packaging (ARM64)";
+
+            // Wait up to 30 minutes for ARM64 release workflow to complete for this release.
+            for (let attempt = 1; attempt <= 60; attempt++) {
+              const { data } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner,
+                repo,
+                event: "release",
+                per_page: 100,
+              });
+
+              const runs = data.workflow_runs.filter((run) =>
+                run.name === arm64WorkflowName &&
+                run.head_branch === context.payload.release.tag_name
+              );
+
+              if (runs.length > 0) {
+                const latest = runs.sort(
+                  (a, b) => new Date(b.created_at) - new Date(a.created_at)
+                )[0];
+
+                core.info(`ARM64 run ${latest.id} status=${latest.status} conclusion=${latest.conclusion}`);
+
+                if (latest.status === "completed") {
+                  if (latest.conclusion === "success") {
+                    core.info("ARM64 workflow completed successfully.");
+                    return;
+                  }
+                  core.setFailed(`ARM64 workflow completed with conclusion: ${latest.conclusion}`);
+                  return;
+                }
+              } else {
+                core.info("ARM64 workflow run not found yet for this tag.");
+              }
+
+              core.info(`Attempt ${attempt}/60: waiting 30s for ARM64 workflow...`);
+              await new Promise((resolve) => setTimeout(resolve, 30000));
+            }
+
+            core.setFailed("Timed out waiting for ARM64 workflow to complete.");
+
+      - name: Publish to WinGet
+        if: github.event_name == 'release' && !github.event.release.prerelease
+        uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: archisman-panigrahi.QuickBib
+          installers-regex: '-x64\.exe$'
+          token: ${{ secrets.WINGET_TOKEN }}
