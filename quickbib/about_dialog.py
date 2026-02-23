@@ -113,6 +113,17 @@ class AboutDialog(QDialog):
         authors_text.setOpenExternalLinks(True)
         tabs.addTab(authors_text, tr("about.tab.authors"))
 
+        translators_text = QTextBrowser()
+        translators_html = """
+        <ul>
+          <li>Archisman Panigrahi (অর্চিষ্মান পাণিগ্রাহী) — Bangla</li>
+          <li>YanMing (焱铭) — Simplified Chinese</li>
+        </ul>
+        """
+        translators_text.setHtml(translators_html)
+        translators_text.setOpenExternalLinks(True)
+        tabs.addTab(translators_text, tr("about.tab.translators"))
+
         license_text = QTextBrowser()
         if LICENSE_PATH.exists() or LICENSE_PATH_FALLBACK.exists():
             license_file = LICENSE_PATH if LICENSE_PATH.exists() else LICENSE_PATH_FALLBACK

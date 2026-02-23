@@ -29,6 +29,7 @@
   "about.version": "Versão {version}",
   "about.tab.about": "Sobre",
   "about.tab.authors": "Autores",
+  "about.tab.translators": "Tradutores",
   "about.tab.license": "Licença",
   "about.body.intro_1": "{app_name} busca entradas BibTeX a partir de DOIs, IDs do arXiv e URLs de periódicos conhecidos. É um utilitário simples para transformar rapidamente identificadores em registros BibTeX prontos para uso.",
   "about.body.intro_2": "QuickBib usa <a href=\"https://github.com/archisman-panigrahi/doi2bib3\">doi2bib3</a> como motor (backend) para a conversão de DOI em BibTeX.",

@@ -29,6 +29,7 @@
   "about.version": "সংস্করণ {version}",
   "about.tab.about": "আমাদের কথা",
   "about.tab.authors": "লেখক",
+  "about.tab.translators": "অনুবাদক",
   "about.tab.license": "অনুজ্ঞাপত্র",
   "about.body.intro_1": "{app_name} DOI, arXiv ID এবং পরিচিত জার্নাল URL থেকে BibTeX খুঁজে বার করে। এটি গবেষণাপত্রের DOI দ্রুত BibTeX-এ রূপান্তর করার একটি সহজ উপায়।",
   "about.body.intro_2": "DOI থেকে BibTeX রূপান্তরের জন্য QuickBib <a href=\"https://github.com/archisman-panigrahi/doi2bib3\">doi2bib3</a> ব্যবহার করে।",

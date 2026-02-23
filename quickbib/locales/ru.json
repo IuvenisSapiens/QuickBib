@@ -29,6 +29,7 @@
   "about.version": "Версия {version}",
   "about.tab.about": "О программе",
   "about.tab.authors": "Авторы",
+  "about.tab.translators": "Переводчики",
   "about.tab.license": "Лицензия",
   "about.body.intro_1": "{app_name} получает BibTeX‑записи по DOI, идентификаторам arXiv и известным URL журналов. Это простая утилита, которая быстро превращает идентификаторы в готовые BibTeX‑записи.",
   "about.body.intro_2": "QuickBib использует <a href=\"https://github.com/archisman-panigrahi/doi2bib3\">doi2bib3</a> в качестве движка для конвертации DOI → BibTeX.",

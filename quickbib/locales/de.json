@@ -29,6 +29,7 @@
   "about.version": "Version {version}",
   "about.tab.about": "Über",
   "about.tab.authors": "Autor:innen",
+  "about.tab.translators": "Übersetzer:innen",
   "about.tab.license": "Lizenz",
   "about.body.intro_1": "{app_name} holt BibTeX-Einträge für DOIs, arXiv-IDs und bekannte Journal-URLs. Ein kleines Werkzeug, das Kennungen schnell in nutzbare BibTeX-Datensätze umwandelt.",
   "about.body.intro_2": "QuickBib nutzt <a href=\"https://github.com/archisman-panigrahi/doi2bib3\">doi2bib3</a> als Backend für die DOI→BibTeX-Konvertierung.",

@@ -30,6 +30,7 @@
   "about.tab.about": "关于",
   "about.tab.authors": "作者",
   "about.tab.license": "许可证",
+  "about.tab.translators": "译者",
   "about.body.intro_1": "{app_name} 可以从 DOI、arXiv ID 和已知期刊链接获取 BibTeX 条目。这是一个简单实用的工具，可以快速将标识符转换为可用的 BibTeX 记录。",
   "about.body.intro_2": "QuickBib 使用 <a href=\"https://github.com/archisman-panigrahi/doi2bib3\">doi2bib3</a> 作为 DOI 到 BibTeX 转换的后端。",
   "about.body.links": "<b>主页:</b> <a href=\"{homepage}\">{homepage}</a><br><b>源代码:</b> <a href=\"{repo_url}\">{repo_url}</a><br><b>报告问题:</b> <a href=\"{issues_url}\">{issues_url}</a><br><br><b>网页应用:</b> 在<a href=\"{webapp_url}\">这里</a>查看。",
