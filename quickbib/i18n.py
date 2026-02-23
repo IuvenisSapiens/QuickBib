@@ -39,10 +39,16 @@ def _load_locale(locale_code: str) -> dict[str, str]:
 
 
 def _preferred_locales() -> list[str]:
-    override = os.environ.get("QUICKBIB_LANG", "").strip()
-    if override:
-        normalized = override.replace("-", "_").lower()
-    else:
+    normalized = ""
+    for env_var in ("LC_ALL", "LC_MESSAGES", "LANG"):
+        raw = os.environ.get(env_var, "").strip()
+        if not raw:
+            continue
+        # Handle values like en_US.UTF-8@variant
+        normalized = raw.split(".", 1)[0].split("@", 1)[0].replace("-", "_").lower()
+        break
+
+    if not normalized:
         normalized = QLocale.system().name().replace("-", "_").lower()
 
     langs: list[str] = []

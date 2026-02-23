@@ -135,8 +135,8 @@ python tools/check_translations.py
 
 4. Open a pull request.
 
-To test a specific locale locally, set `QUICKBIB_LANG`, for example:
+To test a specific locale locally, set `LANG` (or `LC_ALL`), for example:
 
 ```
-QUICKBIB_LANG=es python3 -m quickbib
+LANG=es python3 -m quickbib
 ```

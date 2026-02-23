@@ -10,10 +10,12 @@ Translations are stored as JSON files in this directory.
 
 QuickBib picks translations in this order:
 
-1. `QUICKBIB_LANG` environment variable (if set)
-2. System locale from Qt (for example `fr_FR`)
-3. Locale language fallback (for example `fr`)
-4. `en`
+1. `LC_ALL` (if set)
+2. `LC_MESSAGES` (if set)
+3. `LANG` (if set)
+4. System locale from Qt (for example `fr_FR`)
+5. Locale language fallback (for example `fr`)
+6. `en`
 
 ## Add a new language
 
