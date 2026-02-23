@@ -88,6 +88,7 @@ class AboutDialog(QDialog):
         <p>
           {tr("about.body.links", homepage=HOMEPAGE, repo_url=REPO_URL, issues_url=ISSUES_URL, webapp_url=WEBAPP_URL)}
         </p>
+        <p>{tr("about.body.translations_welcome", repo_url=REPO_URL)}</p>
         <p>{tr("about.body.license")}</p>
         """
         about_text.setHtml(about_html)
