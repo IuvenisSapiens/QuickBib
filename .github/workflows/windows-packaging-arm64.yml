@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      custom_version:
+        description: 'Custom MSIX version (e.g., 0.7.0.1) - leave empty to use git tag'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -150,8 +155,55 @@ jobs:
           if ($version -notmatch '^\d+\.\d+\.\d+\.\d+$') {
             $version = "$version.0"
           }
-
+          # Use custom version from workflow dispatch if provided for MSIX
+          if ("${{ github.event.inputs.custom_version }}" -and "${{ github.event.inputs.custom_version }}" -ne "") {
+            $msixVersion = "${{ github.event.inputs.custom_version }}"
+            $msixVersion = $msixVersion.TrimStart('v')
+            if ($msixVersion -notmatch '^\d+\.\d+\.\d+(\.\d+)?$') {
+              Write-Host "Invalid custom version format: $msixVersion"
+              exit 1
+            }
+            if ($msixVersion -notmatch '^\d+\.\d+\.\d+\.\d+$') {
+              $msixVersion = "$msixVersion.0"
+            }
+            $version = $msixVersion
+          }
           $identityLine = '  <Identity Name="archisman-panigrahi.QuickBib" Publisher="' + $env:MSIX_PUBLISHER_CN + '" Version="' + $version + '" ProcessorArchitecture="arm64" />'
+          
+          # Dynamically generate language resource declarations from available locales
+          $localesDir = Join-Path $workspace 'quickbib/locales'
+          $languageMap = @{
+            'bn'     = 'bn-IN'
+            'de'     = 'de-DE'
+            'en'     = 'en-us'
+            'es'     = 'es-ES'
+            'fr'     = 'fr-FR'
+            'it'     = 'it-IT'
+            'pl'     = 'pl-PL'
+            'pt_br'  = 'pt-BR'
+            'ru'     = 'ru-RU'
+            'zh_cn'  = 'zh-CN'
+          }
+          
+          $resourceEntries = @()
+          if (Test-Path $localesDir) {
+            $jsonFiles = Get-ChildItem -Path $localesDir -Filter '*.json' | Where-Object { $_.BaseName -ne 'README' }
+            foreach ($file in $jsonFiles | Sort-Object BaseName) {
+              $baseName = $file.BaseName
+              $langTag = $languageMap[$baseName]
+              if ($langTag) {
+                $resourceEntries += ("    <Resource Language=""{0}"" />" -f $langTag)
+              }
+            }
+          }
+          
+          # Fallback to en-us if no locales found
+          if ($resourceEntries.Count -eq 0) {
+            $resourceEntries += '    <Resource Language="en-us" />'
+          }
+          
+          $resourcesBlock = $resourceEntries -join "`n"
+          
           $manifest = @(
             '<?xml version="1.0" encoding="utf-8"?>',
             '<Package',
@@ -169,7 +221,7 @@ jobs:
             '    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />',
             '  </Dependencies>',
             '  <Resources>',
-            '    <Resource Language="en-us" />',
+            $resourcesBlock,
             '  </Resources>',
             '  <Applications>',
             '    <Application Id="QuickBib" Executable="QuickBib.exe" EntryPoint="Windows.FullTrustApplication">',
