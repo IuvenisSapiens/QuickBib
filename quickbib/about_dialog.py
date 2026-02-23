@@ -13,12 +13,13 @@ from PyQt6.QtGui import QPixmap, QFont, QIcon
 from PyQt6.QtCore import Qt
 
 from .app_info import APP_NAME, APP_VERSION, HOMEPAGE, REPO_URL, LICENSE_PATH, LICENSE_PATH_FALLBACK, WEBAPP_URL, ISSUES_URL
+from .i18n import tr
 
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("About QuickBib")
+        self.setWindowTitle(tr("about.window_title"))
         self.resize(600, 420)
 
         # Main layout
@@ -63,7 +64,7 @@ class AboutDialog(QDialog):
         title_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         title_layout.addWidget(title_label)
 
-        subtitle = QLabel(f"Version {APP_VERSION}")
+        subtitle = QLabel(tr("about.version", version=APP_VERSION))
         subtitle.setAlignment(Qt.AlignmentFlag.AlignLeft)
         title_layout.addWidget(subtitle)
 
@@ -82,39 +83,35 @@ class AboutDialog(QDialog):
 
         about_text = QTextBrowser()
         about_html = f"""
-        <p>{APP_NAME} fetches BibTeX entries from DOIs, arXiv IDs, and known journal URLs.
-        It is a simple utility to quickly convert identifiers into usable BibTeX records.</p>
-        <p> QuickBib uses <a href="https://github.com/archisman-panigrahi/doi2bib3">doi2bib3</a>
-        as its backend for DOI to BibTeX conversion.</p>
+        <p>{tr("about.body.intro_1", app_name=APP_NAME)}</p>
+        <p>{tr("about.body.intro_2")}</p>
         <p>
-          <b>Homepage:</b> <a href="{HOMEPAGE}">{HOMEPAGE}</a><br>
-          <b>Source Code:</b> <a href="{REPO_URL}">{REPO_URL}</a><br>
-          <b>Report Issues:</b> <a href="{ISSUES_URL}">{ISSUES_URL}</a><br><br>
-          <b>Web app:</b> Check it out <a href="{WEBAPP_URL}">here</a>.
+          {tr("about.body.links", homepage=HOMEPAGE, repo_url=REPO_URL, issues_url=ISSUES_URL, webapp_url=WEBAPP_URL)}
         </p>
-        <p><b>License:</b> Released under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text">GNU General Public License Version 3</a>. Full text available on the <i>License</i> tab.</p>
+        <p>{tr("about.body.translations_welcome", repo_url=REPO_URL)}</p>
+        <p>{tr("about.body.license")}</p>
         """
         about_text.setHtml(about_html)
         about_text.setOpenExternalLinks(True)
-        tabs.addTab(about_text, "About")
+        tabs.addTab(about_text, tr("about.tab.about"))
 
         authors_text = QTextBrowser()
         authors_html = f"""
-        <h3>Authors</h3>
+        <h3>{tr("authors.heading")}</h3>
         <ul>
           <li><a href="https://github.com/archisman-panigrahi/">Archisman Panigrahi</a></li>
         </ul>
-        <h3> Significant Contributors</h3>
+        <h3>{tr("authors.contributors_heading")}</h3>
         <ul>
-          <li><a href="https://github.com/Kyuyrii/">Kyuyrii</a>: Helped fix the snap package.</li>
+          <li>{tr("authors.contributor.kyuyrii")}</li>
         </ul>
-        <p> This project was inspired by <a href="https://github.com/bibcure/doi2bib">doi2bib</a>, whose development unfortunately stopped.</p>
-        <p> This project would not have been possible without the help from GitHub Copilot.</p>
-        <p>Bug reports and pull requests are welcome on the <a href="{REPO_URL}">project's GitHub page</a>.</p>
+        <p>{tr("authors.inspired")}</p>
+        <p>{tr("authors.copilot")}</p>
+        <p>{tr("authors.prs_welcome", repo_url=REPO_URL)}</p>
         """
         authors_text.setHtml(authors_html)
         authors_text.setOpenExternalLinks(True)
-        tabs.addTab(authors_text, "Authors")
+        tabs.addTab(authors_text, tr("about.tab.authors"))
 
         license_text = QTextBrowser()
         if LICENSE_PATH.exists() or LICENSE_PATH_FALLBACK.exists():
@@ -123,21 +120,21 @@ class AboutDialog(QDialog):
                 license_content = license_file.read_text(encoding="utf-8")
                 license_text.setPlainText(license_content)
             except Exception:
-                license_text.setHtml("<p>Unable to read LICENSE file.</p>")
+                license_text.setHtml(tr("license.read_failed"))
         else:
-            license_text.setHtml(f"<p>GPLv3 license text not found in repository. See the <a href=\"https://www.gnu.org/licenses/gpl-3.0.en.html#license-text\">Read it online</a>.</p>")
-        tabs.addTab(license_text, "License")
+            license_text.setHtml(tr("license.not_found"))
+        tabs.addTab(license_text, tr("about.tab.license"))
 
         btn_hbox = QHBoxLayout()
         btn_hbox.addStretch()
 
-        dedication = QLabel("<em>Dedicated to all my friends 😊</em>")
+        dedication = QLabel(tr("about.dedication"))
         dedication.setAlignment(Qt.AlignmentFlag.AlignCenter)
         dedication.setMinimumWidth(240)
         btn_hbox.addWidget(dedication)
 
         btn_hbox.addStretch()
-        close_btn = QPushButton("\u2715 Close")
+        close_btn = QPushButton(tr("button.close"))
         close_btn.clicked.connect(self.reject)
         close_btn.setFixedHeight(28)
         btn_hbox.addWidget(close_btn)

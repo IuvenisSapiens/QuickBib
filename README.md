@@ -120,3 +120,25 @@ Or run the convenience script in `bin/quickbib`:
 ```
 ./bin/quickbib
 ```
+
+## Translations
+
+QuickBib now uses JSON-based translations in `quickbib/locales/.
+Except Bengali, the other translations were done with AI. PRs for modifications and addition
+of new languages are welcome!
+
+1. Copy `quickbib/locales/en.json` to a new file like `quickbib/locales/es.json`.
+2. Translate the values, keeping keys unchanged.
+3. Validate files locally:
+
+```
+python tools/check_translations.py
+```
+
+4. Open a pull request.
+
+To test a specific locale locally, set `LANG` (or `LC_ALL`), for example:
+
+```
+LANG=es python3 -m quickbib
+```
