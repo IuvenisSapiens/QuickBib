@@ -1,3 +1,9 @@
+quickbib (0.7.1-1) unstable; urgency=medium
+
+  * Bump version to update doi2bib3 backend
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sun, 01 Mar 2026 15:50:35 -0500
+
 quickbib (0.7.0-1) unstable; urgency=medium
 
   * Added translations

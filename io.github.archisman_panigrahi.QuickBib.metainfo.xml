@@ -47,6 +47,12 @@
     <color type="primary" scheme_preference="dark">#9f72b3</color>
   </branding>
   <releases>
+    <release version="0.7.1" date="2026-03-01">
+      <description>
+        <p>Bump version to update doi2bib3 backend</p>
+      </description>
+      <url type="details">https://github.com/archisman-panigrahi/QuickBib/releases/tag/v0.7.1</url>
+    </release>
     <release version="0.7.0" date="2026-02-23">
       <description>
         <p>Added translations</p>
