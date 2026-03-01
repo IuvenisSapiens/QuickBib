@@ -503,5 +503,5 @@ jobs:
         uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: archisman-panigrahi.QuickBib
-          installers-regex: '-x64\.exe$'
+          installers-regex: '-(x64|arm64)\.exe$'
           token: ${{ secrets.WINGET_TOKEN }}
