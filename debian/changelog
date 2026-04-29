@@ -1,3 +1,9 @@
+quickbib (0.7.3-1) unstable; urgency=medium
+
+  * Better diacritic handling with updated doi2bib3
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Wed, 29 Apr 2026 18:18:05 -0400
+
 quickbib (0.7.2-1) unstable; urgency=medium
 
   * Update to ship updated doi2bib3 backend
