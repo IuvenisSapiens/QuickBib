@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+import signal
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon
 
@@ -47,6 +48,11 @@ def main(argv):
         pass
     win = QuickBibWindow()
     win.show()
+    # Set SIGINT to default so Ctrl+C produces KeyboardInterrupt.
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+    except Exception:
+        pass
     return app.exec()
 
 
