@@ -47,6 +47,12 @@
     <color type="primary" scheme_preference="dark">#9f72b3</color>
   </branding>
   <releases>
+    <release version="0.8.0" date="2026-04-30">
+      <description>
+        <p>mobile friendly responsive interface</p>
+      </description>
+      <url type="details">https://github.com/archisman-panigrahi/QuickBib/releases/tag/v0.8.0</url>
+    </release>
     <release version="0.7.3" date="2026-04-29">
       <description>
         <p>Better diacritic handling with updated doi2bib3</p>
