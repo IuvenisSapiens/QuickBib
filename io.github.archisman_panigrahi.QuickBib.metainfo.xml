@@ -41,11 +41,23 @@
       <caption>BibTeX obtained from title search</caption>
       <image>https://raw.githubusercontent.com/archisman-panigrahi/QuickBib/8f0f60cba3e3b2e1133c4e198f9c3366be693e05/assets/screenshots/quickbib_title.png</image>
     </screenshot>
+    <screenshot type="default">
+      <caption>Mobile layout of QuickBib</caption>
+      <image>https://raw.githubusercontent.com/archisman-panigrahi/QuickBib/590319664bc291368366e3d54df1ec60bbd4d5be/assets/screenshots/quickbib_mobile.png</image>
+    </screenshot>
   </screenshots>
   <branding>
     <color type="primary" scheme_preference="light">#f6d32d</color>
     <color type="primary" scheme_preference="dark">#9f72b3</color>
   </branding>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">320</display_length>
+  </requires>
   <releases>
     <release version="0.7.3" date="2026-04-29">
       <description>
