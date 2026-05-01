@@ -1,3 +1,9 @@
+quickbib (0.8.0-1) unstable; urgency=medium
+
+  * mobile friendly responsive interface
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Thu, 30 Apr 2026 19:20:48 -0400
+
 quickbib (0.7.3-1) unstable; urgency=medium
 
   * Better diacritic handling with updated doi2bib3
