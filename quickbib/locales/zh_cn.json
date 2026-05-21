@@ -54,7 +54,7 @@
   "examples.label.arxiv_id": "arXiv ID",
   "examples.label.arxiv_id_short": "arXiv ID (短格式)",
   "examples.label.old_arxiv_id": "旧版 arXiv ID",
-  "examples.label.journal_url": "期刊链接 (适用于 APS, AMS, ACS, PNAS, Nature 等)",
+  "examples.label.journal_url": "期刊链接 (适用于 APS, AMS, ACS, PNAS, Nature, ScienceDirect 等)",
   "examples.label.title_fuzzy": "标题 (模糊搜索)",
   "button.copy": "复制"
 }

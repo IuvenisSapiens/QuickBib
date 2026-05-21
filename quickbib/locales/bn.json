@@ -54,7 +54,7 @@
   "examples.label.arxiv_id": "arXiv ID",
   "examples.label.arxiv_id_short": "arXiv ID (সংক্ষিপ্ত)",
   "examples.label.old_arxiv_id": "পুরনো arXiv ID",
-  "examples.label.journal_url": "জার্নাল URL (APS, AMS, ACS, PNAS, Nature ইত্যাদি কাজ করে)",
+  "examples.label.journal_url": "জার্নাল URL (APS, AMS, ACS, PNAS, Nature, ScienceDirect ইত্যাদি কাজ করে)",
   "examples.label.title_fuzzy": "শিরোনাম (আনুমানিক অনুসন্ধান)",
   "button.copy": "কপি"
 }

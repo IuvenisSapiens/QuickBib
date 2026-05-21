@@ -54,7 +54,7 @@
   "examples.label.arxiv_id": "arXiv ID",
   "examples.label.arxiv_id_short": "arXiv-ID (kurz)",
   "examples.label.old_arxiv_id": "Alte arXiv-ID",
-  "examples.label.journal_url": "Journal-URL (funktioniert mit APS, AMS, ACS, PNAS, Nature...)",
+  "examples.label.journal_url": "Journal-URL (funktioniert mit APS, AMS, ACS, PNAS, Nature, ScienceDirect...)",
   "examples.label.title_fuzzy": "Titel (unscharfe Suche)",
   "button.copy": "Kopieren"
 }
