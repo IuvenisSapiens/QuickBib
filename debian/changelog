@@ -1,3 +1,9 @@
+quickbib (0.8.2-1) unstable; urgency=medium
+
+  * added support for ScienceDirect journals
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Thu, 21 May 2026 11:03:05 -0400
+
 quickbib (0.8.1-1) unstable; urgency=medium
 
   * better arXiv link handling via doi2bib3 v0.9.1

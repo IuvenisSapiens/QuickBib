@@ -3,7 +3,7 @@ import sys
 
 # Application metadata
 APP_NAME = "QuickBib"
-APP_VERSION = "0.8.1"
+APP_VERSION = "0.8.2"
 HOMEPAGE = "https://archisman-panigrahi.github.io/QuickBib/"
 REPO_URL = "https://github.com/archisman-panigrahi/QuickBib"
 WEBAPP_URL = "https://quickbib.streamlit.app/"
