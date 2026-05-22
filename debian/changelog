@@ -1,3 +1,9 @@
+quickbib (0.8.3-1) unstable; urgency=medium
+
+  * Fix journal URL for IOP Science and SciPost
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 22 May 2026 13:37:54 -0400
+
 quickbib (0.8.2-1) unstable; urgency=medium
 
   * added support for ScienceDirect journals
